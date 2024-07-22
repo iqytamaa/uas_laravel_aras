@@ -15,6 +15,11 @@
     <div class="h-full px-3 py-4 overflow-y-auto bg-gray-50 dark:bg-gray-800">
         <ul class="space-y-2 font-medium">
             <li>
+                <div class="flex items-center font-bold bg-gray-900 text-gray-200 p-2 rounded-lg group">
+                    <span class="ms-3">DSS Aras TI-4B</span>
+                </div>
+            </li>
+            <li>
                 <a href="/"
                     class="flex items-center font-bold {{ request()->is('/') ? 'bg-gray-400 text-gray-900' : 'text-gray-200 bg-gray-800 hover:bg-gray-400 hover:text-gray-900' }} p-2 rounded-lg group">
                     <svg class="w-5 h-5 text-gray-500 transition duration-75" aria-hidden="true"

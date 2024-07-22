@@ -13,6 +13,9 @@ class DssController extends Controller
     {
         // Inisialisasi variabel array alternatif
         $alternatif = AraAlternative::all()->pluck('name', 'id_alternative')->toArray();
+        if (empty($alternatif)) {
+            return view('results', ['message' => 'Tidak ada alternatif yang tersedia untuk perhitungan.']);
+        }
 
         // Inisialisasi variabel array kriteria dan bobot (W)
         $kriteria = AraCriteria::all();
@@ -21,6 +24,10 @@ class DssController extends Controller
         foreach ($kriteria as $row) {
             $kriterias[$row->id_criteria] = [$row->name, $row->attribute];
             $w[$row->id_criteria] = $row->weight;
+        }
+
+        if (empty($kriterias)) {
+            return view('results', ['message' => 'Tidak ada kriteria yang tersedia untuk perhitungan.']);
         }
 
         // Inisialisasi variabel array matriks keputusan X
@@ -37,6 +44,10 @@ class DssController extends Controller
             }
             $x_0[$j] = ($kriterias[$j][1] == 'cost') ? min($x_0[$j], $aij) : max($x_0[$j], $aij);
             $X[$i][$j] = $aij;
+        }
+
+        if (empty($X)) {
+            return view('results', ['message' => 'Tidak ada evaluasi yang tersedia untuk perhitungan.']);
         }
 
         // Menambahkan data alternatif optimum pada index=0
@@ -83,10 +94,8 @@ class DssController extends Controller
             }
         }
 
-        // Menampilkan semua nilai alternatif K
-        echo "<br>Nilai Alternatif K:<br>";
-        foreach ($K as $index => $value) {
-            echo "Alternatif " . $index . " (" . $alternatif[$index] . ") : " . number_format($value, 2) . "<br>";
+        if (empty($K)) {
+            return view('results', ['message' => 'Tidak ada hasil perhitungan yang tersedia.']);
         }
 
         // Menampilkan alternatif terpilih
