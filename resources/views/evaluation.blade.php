@@ -34,7 +34,7 @@
                                     <td class="px-6 py-4">
                                         <input type="number"
                                             name="evaluations[{{ $alternative->id_alternative }}][{{ $criteria->id_criteria }}]"
-                                            value="{{ $evaluation ? $evaluation->value : '' }}"
+                                            value="{{ $evaluation ? $evaluation->value : '' }}" required
                                             class="form-input text-gray-200 w-25 h-10 text-center bg-gray-900 rounded-lg">
                                     </td>
                                 @endforeach

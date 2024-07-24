@@ -30,6 +30,8 @@ class AraAlternativeController extends Controller
     {
         $request->validate([
             'alternative_name' => 'required',
+        ], [
+            'alternative_name.required' => 'Nama alternatif harus diisi.',
         ]);
 
         $alternative = AraAlternative::findOrFail($id);

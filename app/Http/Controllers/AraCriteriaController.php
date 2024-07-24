@@ -19,6 +19,11 @@ class AraCriteriaController extends Controller
             'criteria_name' => 'required',
             'criteria_attribute' => 'required',
             'criteria_weight' => 'required|numeric',
+        ], [
+            'criteria_name.required' => 'Nama kriteria harus diisi.',
+            'criteria_attribute.required' => 'Jenis kriteria harus diisi.',
+            'criteria_weight.required' => 'Bobot kriteria harus diisi.',
+            'criteria_weight.numeric' => 'Bobot kriteria harus berupa angka.',
         ]);
 
         AraCriteria::create([

@@ -9,7 +9,12 @@ class AraEvaluationController extends Controller
 {
     public function update(Request $request)
     {
+
         $evaluationsData = $request->input('evaluations', []);
+
+        if (empty($evaluationsData)) {
+            return redirect()->back()->withErrors(['evaluations' => 'Tidak ada nilai yang dimasukkan.']);
+        }
 
         foreach ($evaluationsData as $alternativeId => $criteriaValues) {
             foreach ($criteriaValues as $criteriaId => $value) {
@@ -23,6 +28,6 @@ class AraEvaluationController extends Controller
             }
         }
 
-        return redirect()->back()->with('success', 'Evaluations updated successfully!');
+        return redirect()->back()->with('success', 'Nilai Evaluasi Berhasil Diubah');
     }
 }
