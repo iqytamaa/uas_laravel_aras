@@ -1,27 +1,23 @@
 <x-layout>
     <x-sidebar>
-        <h2 class="text-4xl text-gray-200 text-center font-bold">Hasil Perhitungan ARAS</h2>
-        <div class="relative overflow-x-auto p-4">
-            @if (isset($K) && !empty($K))
-                <table class="w-full text-sm rtl:text-right text-gray-500 dark:text-gray-400 text-center">
-                    <thead class="text-base text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+        <div class="max-w-4xl mx-auto p-6 bg-gray-900 rounded-lg shadow-lg mt-8">
+            <h2 class="text-4xl font-bold text-center text-white mb-8">Hasil Perhitungan ARAS</h2>
+
+            @if (isset($K) && !empty($K) && isset($alternatif) && is_array($alternatif))
+                <table class="w-full text-center text-gray-300 border-collapse border border-gray-700 rounded-lg overflow-hidden">
+                    <thead class="bg-blue-700 text-white uppercase text-lg">
                         <tr>
-                            <th scope="col" class="px-6 py-3">
-                                Nama Alternatif
-                            </th>
-                            <th scope="col" class="px-6 py-3">
-                                Hasil Akhir
-                            </th>
+                            <th class="px-6 py-4 border border-gray-600">Nama Alternatif</th>
+                            <th class="px-6 py-4 border border-gray-600">Hasil Akhir</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach ($K as $index => $value)
-                            <tr class="border-b bg-gray-800 border-gray-700">
-                                <th scope="row"
-                                    class="px-6 py-4 font-medium text-gray-200 whitespace-nowrap text-base">
-                                    {{ $alternatif[$index] }}
-                                </th>
-                                <td class="px-6 py-4 text-gray-200 text-base">
+                            <tr class="border border-gray-700 hover:bg-blue-800 transition">
+                                <td class="px-6 py-4 font-semibold border border-gray-600">
+                                    {{ $alternatif[$index] ?? 'Alternatif tidak ditemukan' }}
+                                </td>
+                                <td class="px-6 py-4 font-mono text-lg border border-gray-600">
                                     {{ number_format($value, 2) }}
                                 </td>
                             </tr>
@@ -29,16 +25,22 @@
                     </tbody>
                 </table>
 
-                <h3 class="text-xl font-semibold mb-2 text-gray-200 mt-5">Alternatif Terpilih:</h3>
-                <p class="text-gray-200">
-                    Dari hasil perhitungan dipilih {{ $alternatif[$pilih] }} dengan nilai keseimbangan optimum
-                    sebesar {{ number_format($nilai * 100, 2) }} %
-                </p>
+                @if (isset($pilih) && isset($nilai) && isset($alternatif[$pilih]))
+                    <div class="mt-8 p-6 bg-blue-900 rounded-lg shadow-lg text-center text-blue-300">
+                        <h3 class="text-2xl font-semibold mb-2">Alternatif Terpilih:</h3>
+                        <p class="text-xl">
+                            Dari hasil perhitungan dipilih <span class="font-bold text-white">{{ $alternatif[$pilih] }}</span> dengan nilai keseimbangan optimum sebesar
+                            <span class="font-mono text-white">{{ number_format($nilai * 100, 2) }}%</span>
+                        </p>
+                    </div>
+                @endif
             @else
-                <p class="text-red-600 text-center mt-5 font-bold text-3xl">Tidak bisa melakukan perhitungan!</p>
-                <p class="text-yellow-200 text-center mt-5 font-bold text-lg">Tolong lengkapi table kriteria,
-                    alternatif,
-                    dan evaluasi</p>
+                <div class="mt-10 p-6 bg-red-900 rounded-lg shadow-lg text-center">
+                    <p class="text-3xl font-bold text-red-500 mb-4">Tidak bisa melakukan perhitungan!</p>
+                    <p class="text-yellow-300 text-lg font-semibold">
+                        Tolong lengkapi tabel kriteria, alternatif, dan evaluasi terlebih dahulu.
+                    </p>
+                </div>
             @endif
         </div>
     </x-sidebar>

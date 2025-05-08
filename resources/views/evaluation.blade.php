@@ -1,19 +1,15 @@
 <x-layout>
     <x-sidebar>
         <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
-            <form action="{{ route('evaluations.update') }}" method="POST">
+            <form id="form-evaluasi" action="{{ route('evaluations.update') }}" method="POST">
                 @csrf
                 @method('PUT')
                 <table class="w-full text-sm rtl:text-right text-gray-500 dark:text-gray-400 text-center">
                     <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                         <tr>
-                            <th scope="col" class="px-6 py-3">
-                                Nama Alternatif
-                            </th>
+                            <th scope="col" class="px-6 py-3">Nama Alternatif</th>
                             @foreach ($criterias as $criteria)
-                                <th scope="col" class="px-6 py-3">
-                                    {{ $criteria->criteria }}
-                                </th>
+                                <th scope="col" class="px-6 py-3">{{ $criteria->criteria }}</th>
                             @endforeach
                         </tr>
                     </thead>
@@ -46,4 +42,27 @@
             </form>
         </div>
     </x-sidebar>
+
+    <!-- SweetAlert2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const formEvaluasi = document.getElementById('form-evaluasi');
+            formEvaluasi.addEventListener('submit', function (e) {
+                e.preventDefault();
+                Swal.fire({
+                    title: 'Update data evaluasi?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Ya, update',
+                    cancelButtonText: 'Batal',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        formEvaluasi.submit();
+                    }
+                });
+            });
+        });
+    </script>
 </x-layout>

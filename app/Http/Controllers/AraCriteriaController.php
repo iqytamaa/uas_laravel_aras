@@ -7,23 +7,20 @@ use Illuminate\Http\Request;
 
 class AraCriteriaController extends Controller
 {
+    // Tampilkan daftar kriteria
     public function index()
     {
-        $criterias = AraCriteria::all();
-        return view('your_view_name', compact('criterias'));
+        $criterias = AraCriteria::all(); // ambil semua data kriteria
+        return view('criteria', compact('criterias')); // kirim ke view 'criteria.blade.php'
     }
 
+    // Simpan kriteria baru
     public function store(Request $request)
     {
         $request->validate([
             'criteria_name' => 'required',
             'criteria_attribute' => 'required',
             'criteria_weight' => 'required|numeric',
-        ], [
-            'criteria_name.required' => 'Nama kriteria harus diisi.',
-            'criteria_attribute.required' => 'Jenis kriteria harus diisi.',
-            'criteria_weight.required' => 'Bobot kriteria harus diisi.',
-            'criteria_weight.numeric' => 'Bobot kriteria harus berupa angka.',
         ]);
 
         AraCriteria::create([
@@ -35,6 +32,7 @@ class AraCriteriaController extends Controller
         return redirect()->back()->with('success', 'Kriteria berhasil ditambahkan!');
     }
 
+    // Update kriteria
     public function update(Request $request, $id)
     {
         $request->validate([
@@ -53,6 +51,7 @@ class AraCriteriaController extends Controller
         return redirect()->back()->with('success', 'Kriteria berhasil diperbarui!');
     }
 
+    // Hapus kriteria
     public function destroy($id)
     {
         AraCriteria::destroy($id);
