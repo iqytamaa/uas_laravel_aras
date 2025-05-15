@@ -1,56 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>ARAS</title>
-    @vite('resources/css/app.css')
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ARAS</title>
+  @vite('resources/css/app.css')
 </head>
+<body class="bg-gray-900 text-white flex flex-col h-screen">
 
-<body class="w-full h-full bg-gray-900 flex">
+  {{-- Top Navbar --}}
+  <header class="bg-gray-800 shadow">
+    <div class="max-w-7xl mx-auto flex justify-between items-center h-16 px-4">
+      {{-- Brand --}}
+      <a href="{{ auth()->check() ? route('home') : url('/user') }}"
+         class="text-xl font-bold">
+        ARAS SPK
+      </a>
 
+      {{-- Simplified nav: only Admin & User --}}
+      <nav class="space-x-4">
+        @auth
+          <a href="{{ route('home') }}"
+             class="px-3 py-1 hover:underline {{ request()->routeIs('home') ? 'underline' : '' }}">
+            Admin
+          </a>
+        @endauth
+
+        <a href="{{ url('/user') }}"
+           class="px-3 py-1 hover:underline {{ request()->is('user*') ? 'underline' : '' }}">
+          User
+        </a>
+      </nav>
+
+      {{-- Logout or Login --}}
+      <div>
+        @auth
+          <form method="POST" action="{{ route('logout') }}" class="inline">
+            @csrf
+            <button type="submit"
+                    class="bg-red-600 hover:bg-red-700 px-3 py-1 rounded">
+              Logout
+            </button>
+          </form>
+        @else
+          <a href="{{ route('login') }}"
+             class="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded">
+            Login
+          </a>
+        @endauth
+      </div>
+    </div>
+  </header>
+
+  <div class="flex flex-1 overflow-hidden">
     @auth
-        <!-- Sidebar hanya tampil jika user sudah login -->
-        <aside id="default-sidebar" class="fixed top-0 left-0 z-40 w-64 h-screen bg-gray-900 text-gray-200 overflow-y-auto">
-            <div class="px-4 py-6">
-                <h1 class="text-xl font-bold mb-6">Metode ARAS</h1>
-                <ul class="space-y-2 font-medium">
-                    <li>
-                        <a href="/home" class="block p-2 rounded hover:bg-gray-700 {{ request()->is('home') ? 'bg-gray-700' : '' }}">
-                            Home
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/" class="block p-2 rounded hover:bg-gray-700 {{ request()->is('/') ? 'bg-gray-700' : '' }}">
-                            Kriteria
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/alternative" class="block p-2 rounded hover:bg-gray-700 {{ request()->is('alternative') ? 'bg-gray-700' : '' }}">
-                            Alternatif
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/evaluation" class="block p-2 rounded hover:bg-gray-700 {{ request()->is('evaluation') ? 'bg-gray-700' : '' }}">
-                            Evaluasi
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/calculate" class="block p-2 rounded hover:bg-gray-700 {{ request()->is('calculate') ? 'bg-gray-700' : '' }}">
-                            Hasil Perhitungan
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </aside>
+      {{-- Sidebar for Admin --}}
+      <aside class="w-64 bg-gray-900 p-4 space-y-2">
+        <a href="{{ route('home') }}"
+           class="block px-2 py-1 rounded {{ request()->routeIs('home') ? 'bg-gray-700' : 'hover:bg-gray-800' }}">
+          Home
+        </a>
+        {{-- tambahkan link admin lain di sini jika perlu --}}
+      </aside>
     @endauth
 
-    <main class="@auth flex-1 ml-64 p-6 overflow-auto text-white min-h-screen @else w-full @endauth">
-        {{ $slot }}
+    {{-- Main Content --}}
+    <main class="flex-1 overflow-auto p-6">
+      {{ $slot }}
     </main>
+  </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
-
 </html>

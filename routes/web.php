@@ -1,62 +1,99 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\AraAlternativeController;
 use App\Http\Controllers\AraCriteriaController;
+use App\Http\Controllers\AraAlternativeController;
 use App\Http\Controllers\AraEvaluationController;
 use App\Http\Controllers\DssController;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PublicCriteriaController;
+use App\Http\Controllers\PublicAlternativeController;
+use App\Http\Controllers\PublicEvaluationController;
+use App\Http\Controllers\PublicResultController;
 
-// Root diarahkan ke login
-Route::get('/', function () {
-    return redirect()->route('login');
+/*
+|--------------------------------------------------------------------------
+| Root & Auth Routes
+|--------------------------------------------------------------------------
+*/
+
+// Root → langsung ke halaman publik /user
+Route::get('/', fn() => redirect()->route('user.home'));
+
+// Registrasi
+Route::get('/register', [AuthController::class, 'showRegistrationForm'])
+     ->name('register');
+Route::post('/register', [AuthController::class, 'register'])
+     ->name('register.submit');
+
+// Login & Logout
+Route::get('/login', [AuthController::class, 'showLoginForm'])
+     ->name('login');
+Route::post('/login', [AuthController::class, 'login'])
+     ->name('login.submit');
+Route::post('/logout', [AuthController::class, 'logout'])
+     ->name('logout');
+
+
+/*
+|--------------------------------------------------------------------------
+| Public Routes (User tanpa login)
+|--------------------------------------------------------------------------
+| URL prefix: /user
+|--------------------------------------------------------------------------
+*/
+Route::prefix('user')->name('user.')->group(function () {
+    // Landing page publik
+    Route::view('/', 'public.welcome')->name('home');
+
+    // Daftar Kriteria
+    Route::get('criteria', [PublicCriteriaController::class, 'index'])
+         ->name('criteria.index');
+
+    // Daftar Alternatif
+    Route::get('alternatives', [PublicAlternativeController::class, 'index'])
+         ->name('alternatives.index');
+
+    // Form input evaluasi oleh user
+    Route::get('evaluation', [PublicEvaluationController::class, 'showForm'])
+         ->name('evaluation.index');
+    Route::post('evaluation', [PublicEvaluationController::class, 'submit'])
+         ->name('evaluation.submit');
+
+    // Lihat hasil perhitungan oleh user
+    Route::get('results', [PublicResultController::class, 'index'])
+         ->name('results.index');
 });
 
-// Registrasi (bisa diakses tanpa login)
-Route::get('/register', [AuthController::class, 'showRegistrationForm'])->name('register');
-Route::post('/register', [AuthController::class, 'register'])->name('register.submit');
 
-// Login dan logout (bisa diakses tanpa login)
-Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-
-// Semua route berikut hanya bisa diakses jika sudah login
+/*
+|--------------------------------------------------------------------------
+| Admin Routes (harus login)
+|--------------------------------------------------------------------------
+*/
 Route::middleware('auth')->group(function () {
-
-    // Halaman home, bisa kamu sesuaikan isinya
+    // Dashboard / Home Admin
     Route::get('/home', function () {
-        $criteria = \App\Models\AraCriteria::all();
-        return view('home', ['criterias' => $criteria]);
+        $criterias = \App\Models\AraCriteria::all();
+        return view('admin.home', compact('criterias'));
     })->name('home');
 
-    // Resource route untuk criteria (kriteria)
+    // CRUD Kriteria (admin)
     Route::resource('criteria', AraCriteriaController::class);
 
-    // Resource route untuk alternatives (alternatif)
+    // CRUD Alternatif (admin)
     Route::resource('alternatives', AraAlternativeController::class);
 
-    // Halaman alternatif (bisa juga pakai controller)
-    Route::get('/alternative', function () {
-        $alternative = \App\Models\AraAlternative::all();
-        return view('alternative', ['alternatives' => $alternative]);
-    })->name('alternative.index');
+    // Evaluasi: index, update, delete (admin)
+    Route::get('evaluation', [AraEvaluationController::class, 'index'])
+         ->name('evaluation.index');
+    Route::put('evaluation', [AraEvaluationController::class, 'update'])
+         ->name('evaluation.update');
+    Route::delete('evaluation/{id}', [AraEvaluationController::class, 'destroy'])
+         ->name('evaluation.destroy');
 
-    // Halaman evaluasi
-    Route::get('/evaluation', function () {
-        $evaluation = \App\Models\AraEvaluation::all();
-        $criteria = \App\Models\AraCriteria::all();
-        $alternative = \App\Models\AraAlternative::all();
-        return view('evaluation', [
-            'evaluations' => $evaluation,
-            'criterias' => $criteria,
-            'alternatives' => $alternative
-        ]);
-    })->name('evaluation.index');
-
-    // Update evaluasi
-    Route::put('/evaluations', [AraEvaluationController::class, 'update'])->name('evaluations.update');
-
-    // Hasil perhitungan
-    Route::get('/calculate', [DssController::class, 'calculate'])->name('dss.calculate');
+    // Hasil perhitungan DSS (admin)
+    Route::get('calculate', [DssController::class, 'calculate'])
+         ->name('calculate');
 });
+    

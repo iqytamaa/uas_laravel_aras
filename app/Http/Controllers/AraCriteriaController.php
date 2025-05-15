@@ -11,7 +11,7 @@ class AraCriteriaController extends Controller
     public function index()
     {
         $criterias = AraCriteria::all(); // ambil semua data kriteria
-        return view('criteria', compact('criterias')); // kirim ke view 'criteria.blade.php'
+        return view('admin.criteria', data: compact('criterias')); // kirim ke view 'criteria.blade.php'
     }
 
     // Simpan kriteria baru

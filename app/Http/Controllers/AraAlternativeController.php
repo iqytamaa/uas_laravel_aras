@@ -10,7 +10,7 @@ class AraAlternativeController extends Controller
     public function index()
     {
         $alternatives = AraAlternative::all();
-        return view('alternative', compact('alternatives'));
+    return view('admin.alternatives', compact('alternatives'));
     }
 
     public function store(Request $request)

@@ -9,100 +9,127 @@ use App\Models\AraEvaluation;
 
 class DssController extends Controller
 {
+    /**
+     * Hitung dan tampilkan hasil DSS (metode ARAS).
+     */
     public function calculate()
     {
-        // Inisialisasi variabel array alternatif
-        $alternatif = AraAlternative::all()->pluck('name', 'id_alternative')->toArray();
+        // Ambil semua alternatif
+        $alternatif = AraAlternative::all()
+            ->pluck('name', 'id_alternative')
+            ->toArray();
+
         if (empty($alternatif)) {
-            return view('results', ['message' => 'Tidak ada alternatif yang tersedia untuk perhitungan.']);
+            return view('admin.results', [
+                'message' => 'Tidak ada alternatif yang tersedia untuk perhitungan.'
+            ]);
         }
 
-        // Inisialisasi variabel array kriteria dan bobot (W)
+        // Ambil semua kriteria dan bobot
         $kriteria = AraCriteria::all();
         $kriterias = [];
         $w = [];
         foreach ($kriteria as $row) {
-            $kriterias[$row->id_criteria] = [$row->name, $row->attribute];
+            $kriterias[$row->id_criteria] = [
+                'name'      => $row->criteria,
+                'attribute' => $row->attribute
+            ];
             $w[$row->id_criteria] = $row->weight;
         }
 
         if (empty($kriterias)) {
-            return view('results', ['message' => 'Tidak ada kriteria yang tersedia untuk perhitungan.']);
+            return view('admin.results', [
+                'message' => 'Tidak ada kriteria yang tersedia untuk perhitungan.'
+            ]);
         }
 
-        // Inisialisasi variabel array matriks keputusan X
+        // Bangun matriks keputusan X dan cari nilai ideal x₀
         $X = [];
-        $x_0 = [];
-        $evaluations = AraEvaluation::all();
-        foreach ($evaluations as $row) {
-            $i = $row->id_alternative;
-            $j = $row->id_criteria;
-            $aij = $row->value;
+        $x0 = [];
+        foreach (AraEvaluation::all() as $ev) {
+            $i = $ev->id_alternative;
+            $j = $ev->id_criteria;
+            $aij = $ev->value;
 
-            if (!isset($x_0[$j])) {
-                $x_0[$j] = ($kriterias[$j][1] == 'cost') ? 10 : 0;
+            // inisialisasi x₀[j]
+            if (!isset($x0[$j])) {
+                $x0[$j] = ($kriterias[$j]['attribute'] === 'cost') ? INF : 0;
             }
-            $x_0[$j] = ($kriterias[$j][1] == 'cost') ? min($x_0[$j], $aij) : max($x_0[$j], $aij);
+            // update x₀ sesuai attribute
+            if ($kriterias[$j]['attribute'] === 'cost') {
+                $x0[$j] = min($x0[$j], $aij);
+            } else {
+                $x0[$j] = max($x0[$j], $aij);
+            }
+
             $X[$i][$j] = $aij;
         }
 
         if (empty($X)) {
-            return view('results', ['message' => 'Tidak ada evaluasi yang tersedia untuk perhitungan.']);
+            return view('admin.results', [
+                'message' => 'Tidak ada evaluasi yang tersedia untuk perhitungan.'
+            ]);
         }
 
-        // Menambahkan data alternatif optimum pada index=0
-        $X[0] = $x_0;
+        // sisipkan baris ideal
+        $X[0] = $x0;
 
-        // Inisialisasi jumlah nilai per kriteria (sum_j)
+        // Hitung sum_j untuk normalisasi
         $sum_j = [];
-        foreach ($X as $i => $xi) {
-            foreach ($xi as $j => $xij) {
+        foreach ($X as $i => $row) {
+            foreach ($row as $j => $xij) {
                 if (!isset($sum_j[$j])) {
                     $sum_j[$j] = 0;
                 }
-                $sum_j[$j] += ($kriterias[$j][1] == 'cost') ? (1 / $xij) : $xij;
+                $sum_j[$j] += ($kriterias[$j]['attribute'] === 'cost')
+                    ? (1 / $xij)
+                    : $xij;
             }
         }
 
-        // Inisialisasi variabel array matriks Normalisasi (R)
+        // Matriks normalisasi R
         $R = [];
-        foreach ($X as $i => $xi) {
-            foreach ($xi as $j => $xij) {
-                $R[$i][$j] = ($kriterias[$j][1] == 'cost') ? ((1 / $xij) / $sum_j[$j]) : ($xij / $sum_j[$j]);
+        foreach ($X as $i => $row) {
+            foreach ($row as $j => $xij) {
+                $R[$i][$j] = ($kriterias[$j]['attribute'] === 'cost')
+                    ? ( (1 / $xij) / $sum_j[$j] )
+                    : ( $xij / $sum_j[$j] );
             }
         }
 
-        // Inisialisasi variabel array matriks ternormalisasi terbobot (D)
+        // Matriks ternormalisasi terbobot D
         $D = [];
-        foreach ($R as $i => $ri) {
-            foreach ($ri as $j => $rij) {
+        foreach ($R as $i => $row) {
+            foreach ($row as $j => $rij) {
                 $D[$i][$j] = $rij * $w[$j];
             }
         }
 
-        // Inisialisasi variabel array nilai fungsi optimum (S)
+        // Hitung Sᵢ = Σ Dᵢⱼ
         $S = [];
-        foreach ($D as $i => $di) {
-            $S[$i] = array_sum($di);
+        foreach ($D as $i => $row) {
+            $S[$i] = array_sum($row);
         }
 
-        // Inisialisasi variabel array nilai utilitas (K)
+        // Hitung utilitas Kᵢ = Sᵢ / S₀ (ideal)
         $K = [];
         foreach ($S as $i => $si) {
-            if ($i != 0) {
+            if ($i !== 0) {
                 $K[$i] = $si / $S[0];
             }
         }
 
         if (empty($K)) {
-            return view('results', ['message' => 'Tidak ada hasil perhitungan yang tersedia.']);
+            return view('admin.results', [
+                'message' => 'Tidak ada hasil perhitungan yang tersedia.'
+            ]);
         }
 
-        // Menampilkan alternatif terpilih
+        // Sort dan ambil pemenang
         arsort($K);
         $pilih = key($K);
         $nilai = reset($K);
 
-        return view('results', compact('K', 'alternatif', 'pilih', 'nilai'));
+        return view('admin.results', compact('K', 'alternatif', 'pilih', 'nilai'));
     }
 }
