@@ -3,13 +3,18 @@
         <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
 
             <!-- Form Tambah Alternatif -->
-            <form action="{{ route('alternatives.store') }}" method="POST" class="mb-4 form-simpan">
+                    <form action="{{ route('alternatives.store') }}" method="POST" class="mb-4 form-simpan">
                 @csrf
                 <div class="mb-4">
                     <label for="alternative_name" class="block text-sm font-medium text-gray-200">Nama Alternatif</label>
-                    <input type="text" name="alternative_name" id="alternative_name" required
+                    <input
+                        type="text"
+                        name="alternative_name"
+                        id="alternative_name"
+                        required
                         placeholder="Masukkan nama alternatif"
-                        class="mt-1 block w-full p-2 rounded-xl">
+                        class="mt-1 block w-full p-2 rounded-xl bg-white text-black border border-gray-300"
+                    >
                 </div>
                 <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">Tambah Alternatif</button>
             </form>

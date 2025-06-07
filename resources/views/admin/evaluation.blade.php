@@ -31,12 +31,16 @@
                                             ->first();
                                     @endphp
                                     <td class="px-6 py-4">
-                                        <input type="number"
-                                               name="evaluations[{{ $alternative->id_alternative }}][{{ $criteria->id_criteria }}]"
-                                               value="{{ $eval?->value ?? '' }}"
-                                               required
-                                               class="w-20 h-10 text-center bg-gray-900 text-white rounded-lg">
-                                    </td>
+                                        <input 
+                                        type="number"
+                                        step="any" {{-- atau step="0.1" jika mau 1 decimal place --}}
+                                        name="evaluations[{{ $alternative->id_alternative }}][{{ $criteria->id_criteria }}]"
+                                        value="{{ $eval?->value ?? '' }}"
+                                        required
+                                        class="w-20 h-10 text-center bg-gray-900 text-white rounded-lg"
+                                        placeholder="0.0">
+                                        </td>
+
                                 @endforeach
                             </tr>
                         @endforeach

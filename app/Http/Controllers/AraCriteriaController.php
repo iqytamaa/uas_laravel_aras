@@ -15,41 +15,47 @@ class AraCriteriaController extends Controller
     }
 
     // Simpan kriteria baru
-    public function store(Request $request)
-    {
-        $request->validate([
-            'criteria_name' => 'required',
-            'criteria_attribute' => 'required',
-            'criteria_weight' => 'required|numeric',
-        ]);
+  public function store(Request $request)
+{
+    $request->validate([
+        'criteria_name' => 'required',
+        'criteria_attribute' => 'required',
+        'criteria_weight' => 'required|numeric|gt:0',
+    ], [
+        'criteria_name.required' => 'Nama kriteria wajib diisi.',
+        'criteria_attribute.required' => 'Atribut kriteria wajib diisi.',
+        'criteria_weight.required' => 'Bobot kriteria wajib diisi.',
+        'criteria_weight.numeric' => 'Bobot kriteria harus berupa angka.',
+        'criteria_weight.gt' => 'Bobot kriteria harus lebih besar dari 0 dan tidak boleh 0 atau negatif.',
+    ]);
 
-        AraCriteria::create([
-            'criteria' => $request->criteria_name,
-            'attribute' => $request->criteria_attribute,
-            'weight' => $request->criteria_weight,
-        ]);
+    AraCriteria::create([
+        'criteria' => $request->criteria_name,
+        'attribute' => $request->criteria_attribute,
+        'weight' => $request->criteria_weight,
+    ]);
 
-        return redirect()->back()->with('success', 'Kriteria berhasil ditambahkan!');
-    }
+    return redirect()->back()->with('success', 'Kriteria berhasil ditambahkan!');
+}
+public function update(Request $request, $id)
+{
+    $request->validate([
+        'criteria_name' => 'required',
+        'criteria_attribute' => 'required',
+        'criteria_weight' => 'required|numeric|gt:0', // harus > 0
+    ]);
 
-    // Update kriteria
-    public function update(Request $request, $id)
-    {
-        $request->validate([
-            'criteria_name' => 'required',
-            'criteria_attribute' => 'required',
-            'criteria_weight' => 'required|numeric',
-        ]);
+    $criteria = AraCriteria::findOrFail($id);
 
-        $criteria = AraCriteria::findOrFail($id);
-        $criteria->update([
-            'criteria' => $request->criteria_name,
-            'attribute' => $request->criteria_attribute,
-            'weight' => $request->criteria_weight,
-        ]);
+    $criteria->update([
+        'criteria' => $request->criteria_name,
+        'attribute' => $request->criteria_attribute,
+        'weight' => $request->criteria_weight,
+    ]);
 
-        return redirect()->back()->with('success', 'Kriteria berhasil diperbarui!');
-    }
+    return redirect()->back()->with('success', 'Kriteria berhasil diperbarui!');
+}
+
 
     // Hapus kriteria
     public function destroy($id)

@@ -25,6 +25,13 @@ class PublicResultController extends Controller
             return view('public.results', compact('message'));
         }
 
+         // ✅ Cek jika jumlah evaluasi tidak sesuai (kurang dari total alternatif x kriteria)
+    $expectedEvalCount = $alternatives->count() * $criterias->count();
+    if ($evaluations->count() < $expectedEvalCount) {
+        $message = 'Data evaluasi belum lengkap. Admin harus mengisi semua evaluasi untuk setiap alternatif dan kriteria.';
+        return view('public.results', compact('message'));
+    }
+
         // 1. Bangun matriks X (+ideal baris 0)
         $X = []; $x0 = [];
         foreach ($evaluations as $ev) {

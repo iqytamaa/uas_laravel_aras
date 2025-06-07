@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Login - Metode ARAS</title>
     <link href="{{ asset('css/app.css') }}" rel="stylesheet" />
+    <!-- Load Google reCAPTCHA API -->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 <body class="bg-gray-900 text-white flex items-center justify-center min-h-screen">
 
@@ -22,6 +24,10 @@
             <div class="bg-red-600 p-2 rounded mb-4">{{ $message }}</div>
         @enderror
 
+        @error('g-recaptcha-response')
+            <div class="bg-red-600 p-2 rounded mb-4">{{ $message }}</div>
+        @enderror
+
         <label for="email" class="block mb-1">Email</label>
         <input type="email" name="email" id="email" value="{{ old('email') }}" required autofocus
             class="w-full p-3 rounded mb-4 text-black focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Email">
@@ -29,6 +35,9 @@
         <label for="password" class="block mb-1">Password</label>
         <input type="password" name="password" id="password" required
             class="w-full p-3 rounded mb-6 text-black focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Password">
+
+        <!-- reCAPTCHA widget -->
+        <div class="g-recaptcha" data-sitekey="{{ env('RECAPTCHA_SITE_KEY') }}"></div>
 
         <button type="submit" class="w-full bg-blue-600 py-3 rounded hover:bg-blue-700 transition">
             Login

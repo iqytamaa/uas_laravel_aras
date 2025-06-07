@@ -25,25 +25,33 @@ class AraEvaluationController extends Controller
     /**
      * Bulk update evaluasi berdasarkan input matrix dari admin.
      */
-    public function update(Request $request)
-    {
-        $data = $request->input('evaluations', []);
+  public function update(Request $request)
+{
+    $request->validate([
+        'evaluations.*.*' => 'required|numeric|gt:0',
+    ], [
+        'evaluations.*.*.gt' => 'Nilai evaluasi harus lebih besar dari 0 dan tidak boleh kosong atau negatif.',
+    ]);
 
-        foreach ($data as $altId => $critVals) {
-            foreach ($critVals as $critId => $value) {
-                AraEvaluation::updateOrCreate(
-                    [
-                        'id_alternative' => $altId,
-                        'id_criteria'    => $critId,
-                    ],
-                    ['value' => $value]
-                );
-            }
+    $data = $request->input('evaluations', []);
+
+    foreach ($data as $altId => $critVals) {
+        foreach ($critVals as $critId => $value) {
+            AraEvaluation::updateOrCreate(
+                [
+                    'id_alternative' => $altId,
+                    'id_criteria'    => $critId,
+                ],
+                ['value' => $value]
+            );
         }
-
-        return redirect()->route('evaluation.index')
-                         ->with('success', 'Evaluasi berhasil diperbarui!');
     }
+
+    return redirect()->route('evaluation.index')
+                     ->with('success', 'Evaluasi berhasil diperbarui!');
+}
+
+
 
     /**
      * Hapus satu record evaluasi.

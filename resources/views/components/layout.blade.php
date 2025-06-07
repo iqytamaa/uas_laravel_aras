@@ -1,74 +1,57 @@
+{{-- resources/views/components/layout.blade.php --}}
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ARAS</title>
+  <title>{{ $title ?? '' }}</title>
+
+  {{-- Import Tailwind CSS via Vite --}}
   @vite('resources/css/app.css')
+
+  {{-- SweetAlert2 CDN --}}
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
-<body class="bg-gray-900 text-white flex flex-col h-screen">
+<body class="bg-gray-900 text-white flex flex-col min-h-screen">
 
-  {{-- Top Navbar --}}
-  <header class="bg-gray-800 shadow">
-    <div class="max-w-7xl mx-auto flex justify-between items-center h-16 px-4">
-      {{-- Brand --}}
-      <a href="{{ auth()->check() ? route('home') : url('/user') }}"
-         class="text-xl font-bold">
-        ARAS SPK
-      </a>
-
-      {{-- Simplified nav: only Admin & User --}}
-      <nav class="space-x-4">
-        @auth
-          <a href="{{ route('home') }}"
-             class="px-3 py-1 hover:underline {{ request()->routeIs('home') ? 'underline' : '' }}">
-            Admin
-          </a>
-        @endauth
-
-        <a href="{{ url('/user') }}"
-           class="px-3 py-1 hover:underline {{ request()->is('user*') ? 'underline' : '' }}">
-          User
-        </a>
-      </nav>
-
-      {{-- Logout or Login --}}
-      <div>
-        @auth
-          <form method="POST" action="{{ route('logout') }}" class="inline">
-            @csrf
-            <button type="submit"
-                    class="bg-red-600 hover:bg-red-700 px-3 py-1 rounded">
-              Logout
-            </button>
-          </form>
-        @else
-          <a href="{{ route('login') }}"
-             class="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded">
-            Login
-          </a>
-        @endauth
-      </div>
-    </div>
-  </header>
-
-  <div class="flex flex-1 overflow-hidden">
+  {{-- Navbar --}}
+ <header class="bg-gray-800 shadow">
+  <div class="max-w-7xl mx-auto flex justify-end items-center h-16 px-6">
     @auth
-      {{-- Sidebar for Admin --}}
-      <aside class="w-64 bg-gray-900 p-4 space-y-2">
-        <a href="{{ route('home') }}"
-           class="block px-2 py-1 rounded {{ request()->routeIs('home') ? 'bg-gray-700' : 'hover:bg-gray-800' }}">
-          Home
-        </a>
-        {{-- tambahkan link admin lain di sini jika perlu --}}
-      </aside>
+      <form method="POST" action="{{ route('logout') }}" id="logoutForm" class="inline mr-6">
+        @csrf
+        <button type="button" onclick="confirmLogout()" 
+                class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg transition whitespace-nowrap">
+          Logout
+        </button>
+      </form>
     @endauth
-
-    {{-- Main Content --}}
-    <main class="flex-1 overflow-auto p-6">
-      {{ $slot }}
-    </main>
   </div>
+</header>
+
+  {{-- Main content --}}
+  <main class="flex-1 overflow-auto p-6">
+    {{ $slot }}
+  </main>
+
+  <script>
+    function confirmLogout() {
+      Swal.fire({
+        title: 'Yakin ingin logout?',
+        text: "Sesi Anda akan diakhiri.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Ya, logout!',
+        cancelButtonText: 'Batal'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          document.getElementById('logoutForm').submit();
+        }
+      });
+    }
+  </script>
 
 </body>
 </html>

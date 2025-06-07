@@ -38,21 +38,6 @@
           Hasil
         </a>
       </nav>
-
-      {{-- Login / Dashboard --}}
-      <div>
-        @auth
-          <a href="{{ route('home') }}"
-             class="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded">
-            Admin
-          </a>
-        @else
-          <a href="{{ route('login') }}"
-             class="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded">
-            Login
-          </a>
-        @endauth
-      </div>
     </div>
   </header>
 
