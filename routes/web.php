@@ -11,6 +11,8 @@ use App\Http\Controllers\PublicAlternativeController;
 use App\Http\Controllers\PublicEvaluationController;
 use App\Http\Controllers\PublicResultController;
 use App\Http\Controllers\CaptchaController;
+use App\Http\Controllers\Auth\GoogleController;
+
 
 
 /*
@@ -30,6 +32,10 @@ Route::post('/register', [AuthController::class, 'register'])->name('register.su
 Route::get('/auth/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/auth/login', [AuthController::class, 'login'])->name('login.submit');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+// Google OAuth
+Route::get('/login/google', [GoogleController::class, 'redirectToGoogle']);
+Route::get('/login/google/callback', [GoogleController::class, 'handleGoogleCallback']);
 
 /*
 |--------------------------------------------------------------------------
