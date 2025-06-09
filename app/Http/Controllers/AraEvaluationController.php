@@ -25,13 +25,14 @@ class AraEvaluationController extends Controller
     /**
      * Bulk update evaluasi berdasarkan input matrix dari admin.
      */
-  public function update(Request $request)
-{
-    $request->validate([
-        'evaluations.*.*' => 'required|numeric|gt:0',
+    public function update(Request $request)
+    {
+        $request->validate([
+        'evaluations.*.*' => 'required|numeric|gte:0',
     ], [
-        'evaluations.*.*.gt' => 'Nilai evaluasi harus lebih besar dari 0 dan tidak boleh kosong atau negatif.',
+        'evaluations.*.*.gte' => 'Nilai evaluasi tidak boleh negatif.',
     ]);
+
 
     $data = $request->input('evaluations', []);
 
